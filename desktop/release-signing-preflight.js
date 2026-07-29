@@ -19,11 +19,13 @@ function requireCompleteEnvironmentGroup(name, keys, env) {
 
 function validateSigningEnvironment(env = process.env) {
   const errors = [];
+  const applicationIdentity = String(env.CSC_NAME || "").trim();
   const hasApplicationCertificate =
     Boolean(String(env.CSC_LINK || "").trim()) ||
-    /^Developer ID Application:/i.test(String(env.CSC_NAME || "").trim());
+    /^Developer ID Application:/i.test(applicationIdentity) ||
+    Boolean(applicationIdentity);
   if (!hasApplicationCertificate) {
-    errors.push("Set CSC_LINK or a Developer ID Application identity in CSC_NAME.");
+    errors.push("Set CSC_LINK or a Developer ID Application identity/name in CSC_NAME.");
   }
 
   const installerIdentity = String(env.DOCFLOW_PKG_IDENTITY || "").trim();
