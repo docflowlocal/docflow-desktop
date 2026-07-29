@@ -9,8 +9,8 @@
     "reference": "https://github.com/docflowlocal/docflow-local/pull/2#issuecomment-5116076361"
   },
   "npmScopeTwoFactorAuthentication": {
-    "status": "pending",
-    "reference": ""
+    "status": "complete",
+    "reference": "npm organization docflow-local: willgo.tech verified as owner; organization 2FA enforcement and publishing 2FA verified on 2026-07-29"
   },
   "appleDeveloperId": {
     "status": "pending",
@@ -29,7 +29,7 @@
     "reference": ""
   },
   "productionLicenseKeyring": {
-    "status": "pending",
-    "reference": ""
+    "status": "complete",
+    "reference": "local production public keyring generation 1 validated on 2026-07-29; active Ed25519 key prod-2026-q3 fingerprint d881ff37959723548aed265e90bd12c3fc66bfa36d521daac29340e34b4c097a"
   }
 }
