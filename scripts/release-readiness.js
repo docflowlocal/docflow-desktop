@@ -4,7 +4,7 @@
 const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
-const { execFileSync } = require("child_process");
+const { spawnSync } = require("child_process");
 
 const ROOT_DIR = path.resolve(__dirname, "..");
 const RELEASE_EVIDENCE = "release/release-evidence.json";
@@ -120,24 +120,18 @@ function sha256(filePath) {
 }
 
 function commandResult(command, args, cwd, { env = process.env } = {}) {
-  try {
-    return {
-      ok: true,
-      output: execFileSync(command, args, {
-        cwd,
-        env,
-        encoding: "utf8",
-        stdio: ["ignore", "pipe", "pipe"]
-      }).trim()
-    };
-  } catch (error) {
-    const output = [error.stdout, error.stderr]
-      .filter(Boolean)
-      .map(value => String(value).trim())
-      .filter(Boolean)
-      .join("\n");
-    return { ok: false, output };
-  }
+  const result = spawnSync(command, args, {
+    cwd,
+    env,
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"]
+  });
+  const output = [result.stdout, result.stderr]
+    .filter(Boolean)
+    .map(value => String(value).trim())
+    .filter(Boolean)
+    .join("\n");
+  return { ok: !result.error && result.status === 0, output };
 }
 
 function listPrivateKeyFiles(rootDir) {

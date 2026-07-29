@@ -13,12 +13,12 @@
     "reference": "npm organization docflow-local: willgo.tech verified as owner; organization 2FA enforcement and publishing 2FA verified on 2026-07-29"
   },
   "appleDeveloperId": {
-    "status": "pending",
-    "reference": ""
+    "status": "complete",
+    "reference": "Developer ID Application certificate for Beijing Canlan Shaonian Technology Co., Ltd. (FRKPSKRHGX); signed app verified by codesign and Gatekeeper on 2026-07-29"
   },
   "appleNotarization": {
-    "status": "pending",
-    "reference": ""
+    "status": "complete",
+    "reference": "Apple notarization accepted and stapled on 2026-07-29: app submission 331d391b-b635-43ab-9d78-07643f4e129e; PKG submission 27295435-9b7e-4866-82a6-de0e3ac22de3"
   },
   "windowsAuthenticode": {
     "status": "pending",
