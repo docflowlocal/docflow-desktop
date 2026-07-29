@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "legalProvenanceReview": {
-    "status": "pending",
-    "reference": ""
+    "status": "complete",
+    "reference": "Internal Legal Department review LW-20260729-DF001, dated 2026-07-29: release approved"
   },
   "githubSplitRepositories": {
     "status": "complete",
