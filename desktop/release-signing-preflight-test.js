@@ -45,6 +45,13 @@ const builderCompatibleKeychain = validateSigningEnvironment({
 });
 assert.strictEqual(builderCompatibleKeychain.valid, true);
 
+const defaultKeychainProfile = validateSigningEnvironment({
+  CSC_NAME: "Example Company (TEAMID)",
+  DOCFLOW_PKG_IDENTITY: "Developer ID Installer: Example Company (TEAMID)",
+  APPLE_KEYCHAIN_PROFILE: "docflow-notary"
+});
+assert.strictEqual(defaultKeychainProfile.valid, true);
+
 const partial = validateSigningEnvironment({
   CSC_LINK: "/secure/application-certificate.p12",
   CSC_INSTALLER_LINK: "/secure/installer-certificate.p12",

@@ -52,8 +52,8 @@ function validateSigningEnvironment(env = process.env) {
         env
       ) ||
       requireCompleteEnvironmentGroup(
-        "Apple keychain",
-        ["APPLE_KEYCHAIN", "APPLE_KEYCHAIN_PROFILE"],
+        "Apple keychain profile",
+        ["APPLE_KEYCHAIN_PROFILE"],
         env
       );
   } catch (error) {
