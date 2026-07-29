@@ -48,8 +48,13 @@ jobs:
       - uses: actions/checkout@v7
         with:
           path: project
+      - name: Detect bootstrap mode
+        id: bootstrap_mode
+        env:
+          BOOTSTRAP_ENABLED: ${{ hashFiles('project/package-lock.json') == '' }}
+        run: echo "enabled=$BOOTSTRAP_ENABLED" >> "$GITHUB_OUTPUT"
       - name: Check out reviewed DocFlow packages
-        if: ${{ hashFiles('project/package-lock.json') == '' }}
+        if: ${{ steps.bootstrap_mode.outputs.enabled == 'true' }}
         uses: actions/checkout@v7
         with:
           repository: docflowlocal/docflow
@@ -57,11 +62,11 @@ jobs:
           path: docflow-source
           persist-credentials: false
       - uses: actions/setup-node@v7
-        if: ${{ hashFiles('project/package-lock.json') == '' }}
+        if: ${{ steps.bootstrap_mode.outputs.enabled == 'true' }}
         with:
           node-version: 22
       - name: Pack reviewed public dependencies
-        if: ${{ hashFiles('project/package-lock.json') == '' }}
+        if: ${{ steps.bootstrap_mode.outputs.enabled == 'true' }}
         working-directory: docflow-source
         run: |
           mkdir -p "$RUNNER_TEMP/docflow-packages"
@@ -69,36 +74,36 @@ jobs:
           npm pack ./packages/core --ignore-scripts --pack-destination "$RUNNER_TEMP/docflow-packages"
           npm pack ./packages/license-verifier --ignore-scripts --pack-destination "$RUNNER_TEMP/docflow-packages"
       - name: Verify reviewed dependency versions
-        if: ${{ hashFiles('project/package-lock.json') == '' }}
+        if: ${{ steps.bootstrap_mode.outputs.enabled == 'true' }}
         working-directory: project
         run: node -e "const expected={\"@docflow-local/contracts\":\"0.1.0\",\"@docflow-local/core\":\"0.1.0\",\"@docflow-local/license-verifier\":\"0.1.0\"};const packageJson=require(\"./package.json\");for(const [name,version] of Object.entries(expected)){const actual=packageJson.dependencies?.[name];if(actual!==version){throw new Error(name+\" must equal reviewed package version \"+version+\" (found \"+actual+\")\");}}"
       - name: Install dependencies from reviewed tarballs
-        if: ${{ hashFiles('project/package-lock.json') == '' }}
+        if: ${{ steps.bootstrap_mode.outputs.enabled == 'true' }}
         working-directory: project
         run: npm install --ignore-scripts --save-exact --package-lock=true "$RUNNER_TEMP/docflow-packages/docflow-local-contracts-0.1.0.tgz" "$RUNNER_TEMP/docflow-packages/docflow-local-core-0.1.0.tgz" "$RUNNER_TEMP/docflow-packages/docflow-local-license-verifier-0.1.0.tgz"
       - name: Verify installed dependency tree
-        if: ${{ hashFiles('project/package-lock.json') == '' }}
+        if: ${{ steps.bootstrap_mode.outputs.enabled == 'true' }}
         working-directory: project
         run: npm ls --all
       - name: Audit production and build dependencies
-        if: ${{ hashFiles('project/package-lock.json') == '' }}
+        if: ${{ steps.bootstrap_mode.outputs.enabled == 'true' }}
         run: npm audit --audit-level=high
         working-directory: project
       - name: Restore reviewed package metadata
-        if: ${{ hashFiles('project/package-lock.json') == '' }}
+        if: ${{ steps.bootstrap_mode.outputs.enabled == 'true' }}
         working-directory: project
         run: |
           git checkout -- package.json
           rm -f package-lock.json
       - run: npm run test:syntax
-        if: ${{ hashFiles('project/package-lock.json') == '' }}
+        if: ${{ steps.bootstrap_mode.outputs.enabled == 'true' }}
         working-directory: project
       - run: npm test
-        if: ${{ hashFiles('project/package-lock.json') == '' }}
+        if: ${{ steps.bootstrap_mode.outputs.enabled == 'true' }}
         working-directory: project
       - run: npm run test:api
-        if: ${{ hashFiles('project/package-lock.json') == '' }}
+        if: ${{ steps.bootstrap_mode.outputs.enabled == 'true' }}
         working-directory: project
       - run: npm run test:release
-        if: ${{ hashFiles('project/package-lock.json') == '' }}
+        if: ${{ steps.bootstrap_mode.outputs.enabled == 'true' }}
         working-directory: project
