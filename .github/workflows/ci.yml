@@ -76,11 +76,11 @@ jobs:
       - name: Verify reviewed dependency versions
         if: ${{ steps.bootstrap_mode.outputs.enabled == 'true' }}
         working-directory: project
-        run: node -e "const expected={\"@docflow-local/contracts\":\"0.1.0\",\"@docflow-local/core\":\"0.1.0\",\"@docflow-local/license-verifier\":\"0.1.0\"};const packageJson=require(\"./package.json\");for(const [name,version] of Object.entries(expected)){const actual=packageJson.dependencies?.[name];if(actual!==version){throw new Error(name+\" must equal reviewed package version \"+version+\" (found \"+actual+\")\");}}"
+        run: node -e "const expected={\"@docflow-local/contracts\":\"0.1.0\",\"@docflow-local/core\":\"0.1.1\",\"@docflow-local/license-verifier\":\"0.1.1\"};const packageJson=require(\"./package.json\");for(const [name,version] of Object.entries(expected)){const actual=packageJson.dependencies?.[name];if(actual!==version){throw new Error(name+\" must equal reviewed package version \"+version+\" (found \"+actual+\")\");}}"
       - name: Install dependencies from reviewed tarballs
         if: ${{ steps.bootstrap_mode.outputs.enabled == 'true' }}
         working-directory: project
-        run: npm install --ignore-scripts --save-exact --package-lock=true "$RUNNER_TEMP/docflow-packages/docflow-local-contracts-0.1.0.tgz" "$RUNNER_TEMP/docflow-packages/docflow-local-core-0.1.0.tgz" "$RUNNER_TEMP/docflow-packages/docflow-local-license-verifier-0.1.0.tgz"
+        run: npm install --ignore-scripts --save-exact --package-lock=true "$RUNNER_TEMP/docflow-packages/docflow-local-contracts-0.1.0.tgz" "$RUNNER_TEMP/docflow-packages/docflow-local-core-0.1.1.tgz" "$RUNNER_TEMP/docflow-packages/docflow-local-license-verifier-0.1.1.tgz"
       - name: Verify installed dependency tree
         if: ${{ steps.bootstrap_mode.outputs.enabled == 'true' }}
         working-directory: project

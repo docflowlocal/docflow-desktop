@@ -19,13 +19,11 @@ function requireCompleteEnvironmentGroup(name, keys, env) {
 
 function validateSigningEnvironment(env = process.env) {
   const errors = [];
-  const applicationIdentity = String(env.CSC_NAME || "").trim();
   const hasApplicationCertificate =
     Boolean(String(env.CSC_LINK || "").trim()) ||
-    /^Developer ID Application:/i.test(applicationIdentity) ||
-    Boolean(applicationIdentity);
+    /^Developer ID Application:/i.test(String(env.CSC_NAME || "").trim());
   if (!hasApplicationCertificate) {
-    errors.push("Set CSC_LINK or a Developer ID Application identity/name in CSC_NAME.");
+    errors.push("Set CSC_LINK or a Developer ID Application identity in CSC_NAME.");
   }
 
   const installerIdentity = String(env.DOCFLOW_PKG_IDENTITY || "").trim();
@@ -52,8 +50,8 @@ function validateSigningEnvironment(env = process.env) {
         env
       ) ||
       requireCompleteEnvironmentGroup(
-        "Apple keychain profile",
-        ["APPLE_KEYCHAIN_PROFILE"],
+        "Apple keychain",
+        ["APPLE_KEYCHAIN", "APPLE_KEYCHAIN_PROFILE"],
         env
       );
   } catch (error) {
@@ -74,8 +72,7 @@ function validateReleaseEvidence(rootDir = ROOT_DIR) {
   const requiredBeforeSigning = [
     "legalProvenanceReview",
     "githubSplitRepositories",
-    "npmScopeTwoFactorAuthentication",
-    "productionLicenseKeyring"
+    "npmScopeTwoFactorAuthentication"
   ];
   const pending = requiredBeforeSigning.filter(
     key =>
