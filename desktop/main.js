@@ -4,6 +4,12 @@ const fsConstants = require("fs").constants;
 const fs = require("fs/promises");
 const path = require("path");
 const { createActivationLedger } = require("./activation-ledger");
+const {
+  communitySupportUrl,
+  communitySupportState,
+  isAllowedExternalUrl,
+  withCommunitySupportDismissed
+} = require("./community-support");
 const { createCommercialHost } = require("./commercial-host");
 const { createLocalEngine } = require("./engine");
 const { createProjectIo, safeProjectFilename } = require("./project-io");
@@ -322,6 +328,27 @@ function registerIpcHandlers() {
     preferences.locale = locale;
     await writeFileAtomically(preferencesPath(), `${JSON.stringify(preferences, null, 2)}\n`);
     return locale;
+  });
+
+  ipcMain.handle("docflow:community-support-state", async event => {
+    requireTrustedMainRenderer(event);
+    return communitySupportState(await readPreferences());
+  });
+
+  ipcMain.handle("docflow:community-support-dismiss", async event => {
+    requireTrustedMainRenderer(event);
+    const preferences = withCommunitySupportDismissed(await readPreferences());
+    await writeFileAtomically(preferencesPath(), `${JSON.stringify(preferences, null, 2)}\n`);
+    return communitySupportState(preferences);
+  });
+
+  ipcMain.handle("docflow:community-support-open", async event => {
+    requireTrustedMainRenderer(event);
+    const preferences = await readPreferences();
+    const url = communitySupportUrl(preferences.locale);
+    if (!isAllowedExternalUrl(url)) throw new Error("Community support URL is not allowed");
+    await shell.openExternal(url);
+    return { opened: true };
   });
 
   ipcMain.handle("docflow:get-session-token", event => {
@@ -839,12 +866,7 @@ async function createWindow() {
   });
 
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    try {
-      const parsed = new URL(url);
-      if (parsed.protocol === "https:" || parsed.protocol === "http:") void shell.openExternal(parsed.href);
-    } catch (_error) {
-      // Invalid URLs are denied below.
-    }
+    if (isAllowedExternalUrl(url)) void shell.openExternal(new URL(url).href);
     return { action: "deny" };
   });
 

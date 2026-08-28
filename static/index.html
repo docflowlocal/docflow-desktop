@@ -172,7 +172,7 @@
       <div class="recent-project-list" id="recentProjectList"></div>
       <div class="local-activity-card">
         <div><strong data-i18n="activity.title">本地使用记录</strong><p id="localActivitySummary" data-i18n="activity.loading">正在读取本地摘要…</p></div>
-        <div><button class="text-btn" id="activityExport" type="button" data-i18n="activity.export">导出</button><button class="text-btn danger-text" id="activityClear" type="button" data-i18n="activity.clear">清除</button></div>
+        <div><button class="text-btn" id="activitySupport" type="button" data-i18n="support.entry">支持 Community</button><button class="text-btn" id="activityExport" type="button" data-i18n="activity.export">导出</button><button class="text-btn danger-text" id="activityClear" type="button" data-i18n="activity.clear">清除</button></div>
       </div>
     </section>
   </div>
@@ -272,6 +272,18 @@
       </form>
     </section>
   </div>
+
+  <section class="community-support-prompt" id="communitySupportPrompt" role="complementary" aria-live="polite" aria-labelledby="communitySupportTitle" hidden>
+    <button class="support-prompt-close" id="communitySupportClose" type="button" data-i18n-aria="support.close"><span aria-hidden="true">×</span></button>
+    <div class="support-prompt-icon" aria-hidden="true">♥</div>
+    <div class="support-prompt-copy">
+      <p class="section-kicker" data-i18n="support.kicker">真实交付包已完成</p>
+      <h2 id="communitySupportTitle" data-i18n="support.title">一次性支持 Community 开发</h2>
+      <p data-i18n="support.copy">如果 DocFlow Local 已经节省了你的时间，可自愿支持持续开发。Community 功能始终免费，不支持也不影响使用。</p>
+      <span class="support-prompt-privacy" data-i18n="support.privacy">只会打开官网支持页面，不发送文档、模板或客户数据。</span>
+    </div>
+    <div class="support-prompt-actions"><button class="btn secondary" id="communitySupportLater" type="button" data-i18n="support.later">不再自动提示</button><button class="btn primary" id="communitySupportOpen" type="button" data-i18n="support.action">一次性支持 ¥199</button></div>
+  </section>
 
   <div class="toast" id="toast" role="status"><span>✓</span><div><strong id="toastTitle">已完成</strong><p id="toastCopy"></p></div></div>
   <script src="/i18n.js"></script>

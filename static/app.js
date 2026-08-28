@@ -29,6 +29,11 @@ const DEFAULT_FILENAME_PATTERNS = {
   "zh-CN": "{{客户简称}}-报价单-{{报价编号}}",
   en: "{{客户简称}}-Quotation-{{报价编号}}"
 };
+const COMMUNITY_SUPPORT_URLS = {
+  "zh-CN": "https://docflowlocal.com/zh/support/?source=desktop&amount=199",
+  en: "https://docflowlocal.com/support/?source=desktop&amount=29"
+};
+const COMMUNITY_SUPPORT_DISMISSED_KEY = "docflow-community-support-dismissed-v1";
 const IGNORE_MAPPING = "__DOCFLOW_IGNORE__";
 const BASE_FIELD_CONFIG = [
   { template: "客户简称", source: "客户简称", aliases: ["Customer Short Name", "CustomerShortName", "Customer Abbreviation", "Client Short Name", "ClientShortName"], required: true },
@@ -115,6 +120,8 @@ const state = {
   activationProjectId: "",
   activationProjectPromise: null,
   activationSummary: null,
+  communitySupportDismissed: false,
+  communitySupportStateLoaded: false,
   commercialState: null,
   automationConfigToken: "",
   proRuns: [],
@@ -1785,6 +1792,70 @@ async function completeTrackedBatch(batch, event) {
   return recordActivationEvent(event, details);
 }
 
+async function loadCommunitySupportState() {
+  let dismissed = false;
+  try {
+    dismissed = localStorage.getItem(COMMUNITY_SUPPORT_DISMISSED_KEY) === "1";
+  } catch (_error) {
+    // The desktop preference remains available when localStorage is unavailable.
+  }
+  if (window.docflowDesktop?.getCommunitySupportState) {
+    try {
+      const supportState = await window.docflowDesktop.getCommunitySupportState();
+      dismissed = dismissed || supportState?.dismissed === true;
+    } catch (_error) {
+      // A support prompt must never block app startup or document generation.
+    }
+  }
+  state.communitySupportDismissed = dismissed;
+  state.communitySupportStateLoaded = true;
+  if (dismissed) $("#communitySupportPrompt").hidden = true;
+  return dismissed;
+}
+
+async function dismissCommunitySupportPrompt() {
+  state.communitySupportDismissed = true;
+  state.communitySupportStateLoaded = true;
+  $("#communitySupportPrompt").hidden = true;
+  try {
+    localStorage.setItem(COMMUNITY_SUPPORT_DISMISSED_KEY, "1");
+  } catch (_error) {
+    // The desktop preference below is the durable fallback.
+  }
+  try {
+    await window.docflowDesktop?.dismissCommunitySupportPrompt?.();
+  } catch (_error) {
+    // Dismissal is deliberately non-blocking; localStorage remains a fallback.
+  }
+}
+
+async function maybeShowCommunitySupportPrompt(progress) {
+  const firstNewRealPackage = progress?.recorded === true
+    && progress?.event === "package_saved"
+    && progress?.batch?.real === true
+    && progress?.batch?.outputSaved === true;
+  if (!firstNewRealPackage) return false;
+  if (!state.communitySupportStateLoaded) await loadCommunitySupportState();
+  if (state.communitySupportDismissed) return false;
+  $("#communitySupportPrompt").hidden = false;
+  return true;
+}
+
+async function openCommunitySupportPage() {
+  try {
+    if (window.docflowDesktop?.openCommunitySupport) {
+      const result = await window.docflowDesktop.openCommunitySupport();
+      if (result?.opened !== true) throw new Error("The official support page was not opened");
+    } else {
+      const opened = window.open(COMMUNITY_SUPPORT_URLS[state.locale], "_blank", "noopener,noreferrer");
+      if (!opened) throw new Error("The browser blocked the official support page");
+    }
+    await dismissCommunitySupportPrompt();
+  } catch (error) {
+    showToast(t("support.openFailed"), error.message);
+  }
+}
+
 function applyLocale(previousLocale = state.locale) {
   if (state.projectOrigin === "sample") {
     state.projectName = localized(currentStarterScenario()?.projectName);
@@ -2028,7 +2099,9 @@ async function generatePackage() {
     } else {
       downloadBlob(blob, filename);
     }
-    if (generatedCount > 0) await completeTrackedBatch(trackedBatch, "package_saved");
+    const savedProgress = generatedCount > 0
+      ? await completeTrackedBatch(trackedBatch, "package_saved")
+      : null;
     markRecentOutputAvailable();
     $("#validationModal").hidden = true;
     showToast(t("toast.packageDone"), t("toast.packageDoneSummary", {
@@ -2042,6 +2115,7 @@ async function generatePackage() {
     if (state.dataOrigin === "sample" && result.invalid === 0) {
       showSampleCompletion(generatedCount);
     }
+    void maybeShowCommunitySupportPrompt(savedProgress);
   } catch (error) {
     showToast(t("toast.notGenerated"), error.message);
   } finally {
@@ -2538,6 +2612,10 @@ function bindEvents() {
   $("#recipeExportConfirm").addEventListener("click", confirmRecipeExport);
   $("#activityExport").addEventListener("click", exportActivationSummary);
   $("#activityClear").addEventListener("click", clearActivationSummary);
+  $("#activitySupport").addEventListener("click", openCommunitySupportPage);
+  $("#communitySupportOpen").addEventListener("click", openCommunitySupportPage);
+  $("#communitySupportLater").addEventListener("click", dismissCommunitySupportPrompt);
+  $("#communitySupportClose").addEventListener("click", dismissCommunitySupportPrompt);
   $("#proStartTrial").addEventListener("click", requestProTrial);
   $("#proImportLicense").addEventListener("click", importProLicense);
   $("#proSelectConfig").addEventListener("click", selectAutomationConfig);
@@ -2607,6 +2685,7 @@ function bindEvents() {
   });
   document.addEventListener("keydown", event => {
     if (event.key === "Escape") {
+      if (!$("#communitySupportPrompt").hidden) void dismissCommunitySupportPrompt();
       $("#validationModal").hidden = true;
       $("#sampleCompleteModal").hidden = true;
       $("#projectModal").hidden = true;
@@ -2634,6 +2713,7 @@ function bindEvents() {
 
 async function initializeApp() {
   await loadSavedLocale();
+  await loadCommunitySupportState();
   let sessionError = null;
   try {
     await loadSessionToken();
