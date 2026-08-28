@@ -6,6 +6,8 @@ DocFlow Local is a privacy-first desktop application and modular document engine
 
 > Customer documents are processed locally through a temporary loopback service and application memory. The Community Edition does not upload document content.
 
+The macOS and Windows packages include both English and Simplified Chinese. DocFlow selects a first-run language from the operating system, provides an always-available language switch in the top toolbar, and remembers the selection locally. The Windows NSIS installer also offers an English/简体中文 language selector.
+
 ## MVP capabilities
 
 - Import JSON, CSV, XLSX, and XLSM data, preserve physical source-row numbers and displayed formats such as leading-zero identifiers and percentages, and map columns to template fields.

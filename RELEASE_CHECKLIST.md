@@ -95,6 +95,9 @@ production public keyring, stored private material, or a dirty worktree.
 - Run all unit, API, UI, PDF, and packaged release smoke tests.
 - Run macOS tests on each target architecture and Windows tests on a Windows
   runner; do not substitute cross-compilation for executing the packaged app.
+- Verify the packaged application contains only the declared English and
+  Simplified Chinese Electron locales, the in-app language switch persists
+  across a restart, and the Windows NSIS installer exposes both languages.
 - Build from the exact reviewed commit.
 - Configure Apple Developer ID, hardened runtime, notarization, and stapling.
 - Configure trusted Windows Authenticode signing and timestamping.

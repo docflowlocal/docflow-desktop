@@ -107,7 +107,7 @@ button { color: inherit; }
 .starter-progress-copy p { margin: 5px 0 0; color: var(--muted); font-size: 10px; line-height: 1.45; }
 .starter-badge { flex: 0 0 auto; padding: 6px 9px; border-radius: 999px; color: #087873; background: #dff6f3; font-size: 8px; font-weight: 800; letter-spacing: .5px; }
 .starter-progress-actions { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; }
-.language-toggle { height: 39px; min-width: 57px; padding: 0 10px; border: 1px solid #cfd9e1; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; color: #52677a; background: #fff; font-size: 9px; font-weight: 800; letter-spacing: .3px; cursor: pointer; transition: .18s ease; }
+.language-toggle { height: 39px; min-width: 82px; padding: 0 10px; border: 1px solid #cfd9e1; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; color: #52677a; background: #fff; font-size: 9px; font-weight: 800; letter-spacing: .3px; cursor: pointer; transition: .18s ease; }
 .language-toggle:hover { color: var(--teal); border-color: #9dc9c6; background: #f8fcfb; }
 .language-toggle svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.55; stroke-linecap: round; }
 

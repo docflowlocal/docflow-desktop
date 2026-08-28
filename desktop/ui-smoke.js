@@ -91,11 +91,17 @@ async function rendererCheck(window) {
       await waitFor(() => document.querySelector("#proModal").hidden, "close Pro workbench");
 
       const initialLanguage = document.documentElement.lang;
+      assert(await window.docflowDesktop.getLocale() === initialLanguage, "First-run locale was not saved to desktop preferences");
       document.querySelector("#languageToggle").click();
       await waitFor(() => document.documentElement.lang !== initialLanguage, "language switch");
       const switchedLanguage = document.documentElement.lang;
       assert(["zh-CN", "en"].includes(switchedLanguage), "Unsupported switched locale");
       assert(document.querySelector("#languageToggle").getAttribute("aria-label"), "Language control has no accessible label");
+      assert(
+        document.querySelector("#languageToggleLabel").textContent.trim() === (switchedLanguage === "en" ? "中文" : "English"),
+        "Language control does not clearly name the target language"
+      );
+      assert(await window.docflowDesktop.getLocale() === switchedLanguage, "Switched locale was not saved to desktop preferences");
       if (document.documentElement.lang !== "en") {
         document.querySelector("#languageToggle").click();
         await waitFor(() => document.documentElement.lang === "en", "switch to English for error check");
@@ -136,6 +142,7 @@ async function rendererCheck(window) {
         document.querySelector("#languageToggle").click();
         await waitFor(() => document.documentElement.lang === "zh-CN", "restore Chinese locale");
       }
+      assert(document.querySelector("#languageToggleLabel").textContent.trim() === "English", "Chinese locale does not offer an English switch");
       document.querySelectorAll(".modal-backdrop").forEach(element => { element.hidden = true; });
       document.querySelector("#toast").classList.remove("show");
       window.scrollTo({ top: 0, behavior: "instant" });
@@ -192,6 +199,7 @@ async function main() {
         const poll = () => {
           if (
             document.documentElement.lang === "zh-CN"
+            && document.querySelector("#languageToggleLabel").textContent.trim() === "English"
             && document.querySelectorAll(".mapping-row").length >= 8
             && document.querySelectorAll(".rule-row").length >= 4
           ) {

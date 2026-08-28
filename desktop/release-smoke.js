@@ -4,6 +4,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs/promises");
 const os = require("node:os");
 const path = require("node:path");
+const vm = require("node:vm");
 const { app } = require("electron");
 const { createLocalEngine } = require("./engine");
 
@@ -51,11 +52,20 @@ async function runPackagedSmoke() {
     assert(fontStat.isFile());
     assert(fontStat.size > 1_000_000);
 
+    const i18nSource = await fs.readFile(path.join(app.getAppPath(), "static", "i18n.js"), "utf8");
+    const i18nContext = { window: {} };
+    vm.runInNewContext(i18nSource, i18nContext, { filename: "static/i18n.js" });
+    const locales = Object.keys(i18nContext.window.DOCFLOW_I18N || {}).sort();
+    assert.deepEqual(locales, ["en", "zh-CN"]);
+    assert.match(i18nContext.window.DOCFLOW_I18N["zh-CN"]["app.title"], /[\u3400-\u9fff]/);
+    assert.match(i18nContext.window.DOCFLOW_I18N.en["app.title"], /Document Automation/i);
+
     process.stdout.write(`DOCFLOW_PACKAGED_SMOKE_OK ${JSON.stringify({
       version: app.getVersion(),
       jsonImport: true,
       coreResolved: require.resolve("@docflow-local/core"),
-      chinesePdfFontBytes: fontStat.size
+      chinesePdfFontBytes: fontStat.size,
+      locales
     })}\n`);
   } finally {
     if (engine) await new Promise(resolve => engine.close(resolve));

@@ -74,6 +74,24 @@ jobs:
             throw "Packaged Windows release smoke failed with exit code $LASTEXITCODE"
           }
 
+      - name: Verify bilingual Windows resources
+        shell: powershell
+        run: |
+          $ErrorActionPreference = "Stop"
+          $LocalesDir = Join-Path $PWD "dist\win-unpacked\locales"
+          $ExpectedLocales = @("en-US.pak", "zh-CN.pak")
+          $ActualLocales = @(
+            Get-ChildItem -LiteralPath $LocalesDir -Filter "*.pak" -File |
+              ForEach-Object { $_.Name } |
+              Sort-Object
+          )
+          $Difference = Compare-Object `
+            -ReferenceObject ($ExpectedLocales | Sort-Object) `
+            -DifferenceObject $ActualLocales
+          if ($Difference) {
+            throw "Windows package locales are not exactly English and Simplified Chinese: $($ActualLocales -join ', ')"
+          }
+
       - name: Normalize and verify unsigned preview artifacts
         shell: powershell
         run: |

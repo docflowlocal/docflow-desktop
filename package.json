@@ -25,6 +25,7 @@
   "scripts": {
     "benchmark:engine": "node desktop/benchmark-engine.js",
     "test:api": "node desktop/engine-api-test.js",
+    "test:i18n": "node desktop/i18n-test.js",
     "test:pdf": "electron desktop/pdf-smoke.js",
     "test:ui": "electron desktop/ui-smoke.js",
     "test:pro-ui": "electron desktop/pro-ui-smoke.js",
@@ -45,8 +46,8 @@
     "pack:mac": "electron-builder --mac dir --arm64",
     "pack:mac:x64": "electron-builder --mac dir --x64",
     "pack:win": "powershell -NoProfile -ExecutionPolicy Bypass -File desktop/package-win.ps1 -DirectoryOnly",
-    "test": "node desktop/expression-test.js && node desktop/template-engine-test.js && node desktop/smoke-test.js && node desktop/mvp-regression-test.js && node desktop/license-test.js && node desktop/project-format-test.js && node desktop/project-io-test.js && node desktop/project-recipe-test.js && node desktop/activation-ledger-test.js && node desktop/commercial-host-test.js && node desktop/preload-p3-test.js && node desktop/preload-commercial-test.js",
-    "test:syntax": "node --check static/app.js && node --check static/i18n.js && node --check static/starter-scenarios.js && node --check desktop/expression.js && node --check desktop/template-engine.js && node --check desktop/engine.js && node --check desktop/main.js && node --check desktop/preload.js && node --check desktop/docx-render.js && node --check desktop/project-io.js && node --check desktop/project-io-test.js && node --check desktop/project-recipe.js && node --check desktop/project-recipe-test.js && node --check desktop/activation-ledger.js && node --check desktop/activation-ledger-test.js && node --check desktop/commercial-host.js && node --check desktop/commercial-host-test.js && node --check desktop/preload-p3-test.js && node --check desktop/preload-commercial-test.js && node --check desktop/release-smoke.js && node --check desktop/pdf-smoke.js && node --check desktop/ui-smoke.js && node --check desktop/pro-ui-smoke.js && node --check desktop/mvp-regression-test.js && node --check desktop/benchmark-engine.js && node --check desktop/electron-builder.release.cjs && node --check desktop/electron-builder.win-release.cjs && node --check desktop/release-signing-preflight.js && node --check desktop/release-signing-preflight-test.js && node --check desktop/release-signing-preflight-win.js && node --check desktop/release-signing-preflight-win-test.js && node --check scripts/check-desktop-license-materials.js && node --check scripts/release-readiness.js && node --check scripts/release-readiness-test.js && node --check scripts/generate-release-metadata.js",
+    "test": "node desktop/i18n-test.js && node desktop/expression-test.js && node desktop/template-engine-test.js && node desktop/smoke-test.js && node desktop/mvp-regression-test.js && node desktop/license-test.js && node desktop/project-format-test.js && node desktop/project-io-test.js && node desktop/project-recipe-test.js && node desktop/activation-ledger-test.js && node desktop/commercial-host-test.js && node desktop/preload-p3-test.js && node desktop/preload-commercial-test.js",
+    "test:syntax": "node --check static/app.js && node --check static/i18n.js && node --check static/starter-scenarios.js && node --check desktop/i18n-test.js && node --check desktop/expression.js && node --check desktop/template-engine.js && node --check desktop/engine.js && node --check desktop/main.js && node --check desktop/preload.js && node --check desktop/docx-render.js && node --check desktop/project-io.js && node --check desktop/project-io-test.js && node --check desktop/project-recipe.js && node --check desktop/project-recipe-test.js && node --check desktop/activation-ledger.js && node --check desktop/activation-ledger-test.js && node --check desktop/commercial-host.js && node --check desktop/commercial-host-test.js && node --check desktop/preload-p3-test.js && node --check desktop/preload-commercial-test.js && node --check desktop/release-smoke.js && node --check desktop/pdf-smoke.js && node --check desktop/ui-smoke.js && node --check desktop/pro-ui-smoke.js && node --check desktop/mvp-regression-test.js && node --check desktop/benchmark-engine.js && node --check desktop/electron-builder.release.cjs && node --check desktop/electron-builder.win-release.cjs && node --check desktop/release-signing-preflight.js && node --check desktop/release-signing-preflight-test.js && node --check desktop/release-signing-preflight-win.js && node --check desktop/release-signing-preflight-win-test.js && node --check scripts/check-desktop-license-materials.js && node --check scripts/release-readiness.js && node --check scripts/release-readiness-test.js && node --check scripts/generate-release-metadata.js",
     "test:licenses": "node scripts/check-desktop-license-materials.js",
     "test:release": "npm run test:licenses && node scripts/release-readiness-test.js && node desktop/release-signing-preflight-test.js && node desktop/release-signing-preflight-win-test.js && node scripts/release-readiness.js --channel internal --source-only",
     "release:check": "npm run release:check:mac",
@@ -117,6 +118,17 @@
     "mac": {
       "category": "public.app-category.productivity",
       "icon": "build/icon.png",
+      "electronLanguages": [
+        "en",
+        "zh_CN"
+      ],
+      "extendInfo": {
+        "CFBundleDevelopmentRegion": "en",
+        "CFBundleLocalizations": [
+          "en",
+          "zh_CN"
+        ]
+      },
       "identity": null,
       "hardenedRuntime": false,
       "gatekeeperAssess": false,
@@ -148,6 +160,10 @@
     },
     "win": {
       "icon": "build/icon.png",
+      "electronLanguages": [
+        "en-US",
+        "zh-CN"
+      ],
       "target": [
         {
           "target": "nsis",
@@ -165,6 +181,12 @@
     },
     "nsis": {
       "oneClick": false,
+      "multiLanguageInstaller": true,
+      "installerLanguages": [
+        "en_US",
+        "zh_CN"
+      ],
+      "displayLanguageSelector": true,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
