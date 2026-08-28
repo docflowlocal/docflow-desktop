@@ -13,3 +13,7 @@ are not included in this source tree.
 No private Pro source, customer material, license payload, signing key, or
 commercial build log is included. Trademark rights are described in
 [TRADEMARKS.md](TRADEMARKS.md).
+
+The official `build/icon.png` asset is distributed under this repository's
+AGPL-3.0-or-later copyright license. The open copyright license does not grant
+trademark rights or permission to imply endorsement of a modified build.
