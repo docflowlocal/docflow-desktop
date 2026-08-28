@@ -203,7 +203,13 @@ async function loadSavedLocale() {
   if (!window.docflowDesktop?.getLocale) return;
   try {
     const saved = await window.docflowDesktop.getLocale();
-    if (SUPPORTED_LOCALES.includes(saved)) state.locale = saved;
+    if (SUPPORTED_LOCALES.includes(saved)) {
+      state.locale = saved;
+      return;
+    }
+    if (window.docflowDesktop.setLocale) {
+      await window.docflowDesktop.setLocale(state.locale);
+    }
   } catch (_error) {
     // Browser storage remains the fallback.
   }
@@ -1807,7 +1813,7 @@ function applyLocale(previousLocale = state.locale) {
   } else if (pattern && pattern.textContent.trim() === localized(scenario?.filenamePattern, previousLocale)) {
     pattern.textContent = defaultFilenamePattern();
   }
-  $("#languageToggleLabel").textContent = state.locale === "zh-CN" ? "EN" : "中";
+  $("#languageToggleLabel").textContent = state.locale === "zh-CN" ? "English" : "中文";
   $("#languageToggle").title = t("language.switch");
   $("#languageToggle").setAttribute("aria-label", t("language.switch"));
   $("#engineLabel").textContent = window.docflowDesktop?.isDesktop

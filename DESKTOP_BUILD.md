@@ -27,6 +27,10 @@ npm run desktop:debug
 
 ## macOS
 
+同一 macOS 应用包内包含 `en` 与 `zh_CN` 本地化资源，并在应用的
+`Info.plist` 中声明两种语言。首次启动按系统语言选择，之后可在顶部工具栏
+切换并在本机持久保存；不需要分别维护中英文安装包。
+
 Apple Silicon 构建：
 
 ```bash
@@ -72,6 +76,10 @@ npm run test:packaged:mac:host
 ```
 
 ## Windows
+
+同一 Windows 安装包内包含英文与简体中文应用资源。NSIS 安装向导会显示
+English/简体中文选择，安装后的应用仍可随时在顶部工具栏切换语言并在本机
+持久保存；portable 便携版具有相同的应用内语言能力。
 
 必须在 Windows x64 构建机运行：
 
