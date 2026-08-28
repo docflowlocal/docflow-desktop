@@ -86,6 +86,8 @@ jobs:
 
       - name: Assemble verified download bundle
         shell: powershell
+        env:
+          DOCFLOW_SOURCE_REF: ${{ inputs.source_ref }}
         run: |
           $ErrorActionPreference = "Stop"
           $Version = (& node -p "require('./package.json').version").Trim()
@@ -114,7 +116,7 @@ jobs:
             version = $Version
             platform = "windows"
             arch = "x64"
-            sourceRef = "${{ inputs.source_ref }}"
+            sourceRef = $env:DOCFLOW_SOURCE_REF
             sourceCommit = $SourceCommit
             signed = $false
             distribution = "internal-preview"
