@@ -131,9 +131,10 @@ jobs:
             "{0}  {1}" -f $Hash.Hash.ToLowerInvariant(), (Split-Path -Leaf $Artifact)
           }
           $Utf8NoBom = [System.Text.UTF8Encoding]::new($false)
-          [System.IO.File]::WriteAllLines(
+          $HashText = ([string[]]$HashLines -join "`n") + "`n"
+          [System.IO.File]::WriteAllText(
             (Join-Path $Bundle "SHA256SUMS.txt"),
-            [string[]]$HashLines,
+            $HashText,
             $Utf8NoBom
           )
 
@@ -148,7 +149,7 @@ jobs:
             signed = $false
             distribution = "internal-preview"
           }
-          $BuildInfoJson = ($BuildInfo | ConvertTo-Json) + "`n"
+          $BuildInfoJson = (($BuildInfo | ConvertTo-Json) -replace "`r`n", "`n") + "`n"
           [System.IO.File]::WriteAllText(
             (Join-Path $Bundle "build-info.json"),
             $BuildInfoJson,
