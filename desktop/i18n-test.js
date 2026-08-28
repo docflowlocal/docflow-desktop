@@ -4,6 +4,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
+const { COMMUNITY_SUPPORT_URLS, isAllowedExternalUrl } = require("./community-support");
 
 const ROOT = path.join(__dirname, "..");
 const SUPPORTED_LOCALES = ["zh-CN", "en"];
@@ -69,14 +70,25 @@ function main() {
   assert.match(catalog.en["app.title"], /Document Automation/i, "English application title is missing");
   assert.match(catalog["zh-CN"]["language.switch"], /英文/, "Chinese language-switch label is missing");
   assert.match(catalog.en["language.switch"], /Chinese/i, "English language-switch label is missing");
+  assert.match(catalog["zh-CN"]["support.action"], /¥199/, "Chinese support amount is missing");
+  assert.match(catalog.en["support.action"], /US\$29/, "English support amount is missing");
 
   const html = read("static/index.html");
   const appSource = read("static/app.js");
   assert.match(html, /id="languageToggle"/, "Language switch is missing from the main toolbar");
+  assert.match(html, /id="communitySupportPrompt"/, "Community support prompt is missing");
+  assert.match(html, /id="activitySupport"/, "Persistent Community support entry is missing");
   assert.match(appSource, /const SUPPORTED_LOCALES = \["zh-CN", "en"\]/, "Renderer locale allowlist is incomplete");
   assert.match(appSource, /localStorage\.setItem\("docflow-locale", locale\)/, "Renderer locale persistence is missing");
   assert.match(appSource, /window\.docflowDesktop\.setLocale\(locale\)/, "Desktop locale persistence is missing");
   assert.match(appSource, /await window\.docflowDesktop\.setLocale\(state\.locale\)/, "First-run system locale is not synchronized to desktop preferences");
+  assert.match(appSource, /progress\?\.event === "package_saved"/, "Support prompt is not gated by a saved package");
+  assert.match(appSource, /progress\?\.batch\?\.real === true/, "Support prompt is not gated by the activation ledger's real-batch result");
+  assert.match(appSource, /progress\?\.recorded === true/, "Support prompt may repeat for a deduplicated batch");
+  assert.match(appSource, /dismissCommunitySupportPrompt/, "Support prompt dismissal is not persisted");
+  assert.equal(isAllowedExternalUrl(COMMUNITY_SUPPORT_URLS["zh-CN"]), true);
+  assert.equal(isAllowedExternalUrl(COMMUNITY_SUPPORT_URLS.en), true);
+  assert.equal(/(?:gtag\s*\(|dataLayer|google-analytics)/i.test(appSource), false, "Desktop support flow must not add client analytics");
 
   const build = require("../package.json").build;
   assertSameMembers(build.mac.electronLanguages, ["en", "zh_CN"], "Packaged macOS locales must be English and Simplified Chinese");

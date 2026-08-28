@@ -364,6 +364,9 @@ contextBridge.exposeInMainWorld("docflowDesktop", Object.freeze({
   }),
   getLocale: () => ipcRenderer.invoke("docflow:get-locale"),
   setLocale: locale => ipcRenderer.invoke("docflow:set-locale", locale),
+  getCommunitySupportState: () => ipcRenderer.invoke("docflow:community-support-state"),
+  dismissCommunitySupportPrompt: () => ipcRenderer.invoke("docflow:community-support-dismiss"),
+  openCommunitySupport: () => ipcRenderer.invoke("docflow:community-support-open"),
   getSessionToken: () => ipcRenderer.invoke("docflow:get-session-token"),
   saveOutput: (data, suggestedName) => ipcRenderer.invoke("docflow:save-output", {
     data: transferableBytes(data),

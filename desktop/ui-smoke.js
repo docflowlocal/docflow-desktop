@@ -31,7 +31,7 @@ async function rendererCheck(window) {
     (async () => {
       const waitFor = async (predicate, label, timeout = 10000) => {
         const start = Date.now();
-        while (!predicate()) {
+        while (!(await predicate())) {
           if (Date.now() - start > timeout) throw new Error(label + " timed out");
           await new Promise(resolve => setTimeout(resolve, 50));
         }
@@ -61,9 +61,36 @@ async function rendererCheck(window) {
       assert(document.querySelector("#recentPackageCount").hidden, "Recent package badge must start empty");
       assert(document.querySelectorAll("#starterGrid .starter-card").length === 4, "Four industry starters must be available");
       document.querySelector("#starterModal").hidden = true;
+      const supportPrompt = document.querySelector("#communitySupportPrompt");
+      assert(supportPrompt.hidden, "Community support prompt must not appear before a real batch");
+      assert(
+        await maybeShowCommunitySupportPrompt({ recorded: true, event: "package_saved", batch: { real: false, outputSaved: true } }) === false,
+        "A sample package must not trigger the Community support prompt"
+      );
+      assert(supportPrompt.hidden, "Sample generation exposed the Community support prompt");
+      assert(
+        await maybeShowCommunitySupportPrompt({ recorded: true, event: "package_saved", batch: { real: true, outputSaved: true } }) === true,
+        "A newly saved real package did not trigger the Community support prompt"
+      );
+      assert(!supportPrompt.hidden, "Community support prompt is not visible after a real package");
+      assert(getComputedStyle(supportPrompt).position === "fixed", "Community support prompt should remain visible without creating a blocking backdrop");
+      assert(!supportPrompt.closest(".modal-backdrop"), "Community support prompt must not block the app behind a modal backdrop");
+      assert(supportPrompt.textContent.includes("¥199") || supportPrompt.textContent.includes("US$29"), "Localized Community support amount is missing");
+      document.querySelector("#communitySupportLater").click();
+      await waitFor(() => supportPrompt.hidden, "dismiss Community support prompt");
+      await waitFor(
+        async () => (await window.docflowDesktop.getCommunitySupportState()).dismissed === true,
+        "persist Community support dismissal"
+      );
+      assert(
+        await maybeShowCommunitySupportPrompt({ recorded: true, event: "package_saved", batch: { real: true, outputSaved: true } }) === false,
+        "Dismissed Community support prompt appeared again"
+      );
+      assert(supportPrompt.hidden, "Dismissed Community support prompt did not stay hidden");
       document.querySelector("#projectSwitch").click();
       await waitFor(() => !document.querySelector("#projectModal").hidden, "project workspace");
       assert(document.querySelector("#projectNameInput").value.trim(), "Project workspace has no project name");
+      assert(document.querySelector("#activitySupport"), "Project workspace has no persistent Community support entry");
       assert(document.querySelector("#projectModal").textContent.includes("不保存数据记录") || document.querySelector("#projectModal").textContent.includes("never data rows"), "Project privacy boundary is not visible");
       await waitFor(
         () => !document.querySelector("#localActivitySummary").textContent.includes("正在读取")
@@ -159,6 +186,7 @@ async function rendererCheck(window) {
         validation: true,
         recipePreview: true,
         proGating: true,
+        communitySupport: true,
         languageSwitch: true
       };
     })()
@@ -202,6 +230,7 @@ async function main() {
             && document.querySelector("#languageToggleLabel").textContent.trim() === "English"
             && document.querySelectorAll(".mapping-row").length >= 8
             && document.querySelectorAll(".rule-row").length >= 4
+            && document.querySelector("#communitySupportPrompt").hidden
           ) {
             document.querySelectorAll(".modal-backdrop").forEach(element => { element.hidden = true; });
             document.querySelector("#toast").classList.remove("show");
