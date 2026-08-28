@@ -1,0 +1,9 @@
+# The project currently has one maintainer. SignPath release signing still
+# requires an explicit approval separate from the automated build request.
+* @txianlian
+
+# Build, release, and signing policy changes always require maintainer review.
+/.github/workflows/ @txianlian
+/desktop/electron-builder.win-release.cjs @txianlian
+/desktop/package-win-release.ps1 @txianlian
+/CODE_SIGNING_POLICY.md @txianlian
