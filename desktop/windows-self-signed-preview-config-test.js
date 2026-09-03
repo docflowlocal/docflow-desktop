@@ -76,14 +76,18 @@ const readSource = relativePath => {
   return fs.readFileSync(sourcePath, "utf8");
 };
 const packageManifest = JSON.parse(readSource("package.json"));
-const packageLock = JSON.parse(readSource("package-lock.json"));
 const workflow = readSource(".github/workflows/windows-self-signed-preview.yml");
 const buildScript = readSource("desktop/package-win-self-signed-preview.ps1");
 const cleanupScript = readSource("desktop/cleanup-windows-preview-signing.ps1");
 const prepareScript = readSource("desktop/prepare-windows-preview-signing.ps1");
 const smokeScript = readSource("desktop/release-smoke-win.ps1");
-assert.equal(packageLock.version, packageManifest.version);
-assert.equal(packageLock.packages[""].version, packageManifest.version);
+// Fresh split exports do not yet have a registry lock; real builds require it
+// through npm ci and the release metadata gate.
+if (fs.existsSync(path.join(rootDir, "package-lock.json"))) {
+  const packageLock = JSON.parse(readSource("package-lock.json"));
+  assert.equal(packageLock.version, packageManifest.version);
+  assert.equal(packageLock.packages[""].version, packageManifest.version);
+}
 const previewVersion = workflow.match(/default: v([0-9]+\.[0-9]+\.[0-9]+-preview\.[0-9]+)/)?.[1];
 assert(previewVersion, "the Preview workflow must have an explicit preview version default");
 if (packageManifest.version.includes("-preview.")) assert.equal(packageManifest.version, previewVersion);
