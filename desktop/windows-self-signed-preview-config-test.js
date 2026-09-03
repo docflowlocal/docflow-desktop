@@ -90,7 +90,7 @@ if (packageManifest.version.includes("-preview.")) assert.equal(packageManifest.
 assert.match(workflow, /workflow_dispatch:/);
 assert.match(workflow, /environment: windows-self-signed-preview/);
 assert.match(workflow, /Remove temporary signing material[\s\S]*?if: \$\{\{ always\(\) \}\}/);
-assert.match(readSource(".github/workflows/ci.yml"), /'desktop\/release-smoke-win\.ps1'/);
+assert.match(readSource(".github/workflows/ci.yml"), /desktop\/release-smoke-win\.ps1/);
 
 for (const script of [buildScript, cleanupScript, prepareScript]) {
   assert.match(script, /\$env:GITHUB_ACTIONS/);
