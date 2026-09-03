@@ -42,6 +42,11 @@ jobs:
         if: ${{ hashFiles('package-lock.json') != '' }}
       - run: npm run test:release
         if: ${{ hashFiles('package-lock.json') != '' }}
+      - name: Parse Windows signing scripts
+        if: ${{ runner.os == 'Windows' }}
+        shell: powershell
+        run: |
+          @('desktop/package-win-self-signed-preview.ps1', 'desktop/windows-preview-certificate.ps1', 'desktop/prepare-windows-preview-signing.ps1', 'desktop/cleanup-windows-preview-signing.ps1') | ForEach-Object { [void][scriptblock]::Create((Get-Content -LiteralPath $_ -Raw)) }
   bootstrap:
     runs-on: ubuntu-latest
     steps:
